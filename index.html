@@ -111,7 +111,7 @@
     <p>
 		The Decennial US Census is an important tool that affects representation in congress and allocation of federal funds.<br>
 		Use your cursor to hover over a location and see how response rates (percent of distributed census forms that were completed and returned) vary accross counties.  <br>
-		More research should be done before the 2030 Censsu to identify possible reasons for low response rates and develop plans to address them.
+		More research should be done before the 2030 Census to identify possible reasons for low response rates and develop plans to address them.
 	</p>
 	<p>  Data courtesy US Census Bureau</p>
 		
@@ -165,10 +165,10 @@
           };
         }
       }).addTo(map);
-
+      
       drawMap(dataLayer);
+     
     });
-
 
 
     function drawMap(dataLayer) {
@@ -184,8 +184,6 @@
         });
         layer.bindTooltip(
           `<b>${layer.feature.properties.NAME}</b> <br> Overall Response Rate: ${layer.feature.properties.responserate_CRRALL}%`);
-
-
       });
 
       drawLegend(breaks);
@@ -235,7 +233,7 @@
     function drawLegend(breaks) {
 
       var legend = L.control({
-        position: 'topleft'
+        position: 'bottomleft'
       });
 
       legend.onAdd = function () {
@@ -256,7 +254,7 @@
       };
       legend.addTo(map);
     }
-
+  
 
 
     $.when(countyLayer).done(function () {
@@ -276,6 +274,134 @@
         stateLayer.addTo(map)
       });
     });
+
+
+    // var responserate_CRRINT = "responserate_CRRINT",
+    //   name = "NAME";
+
+
+
+    // var countyLayer = $.getJSON("data/responsecounties.geojson", function (data) {
+
+    //   var testLayer = L.geoJson(data, {
+    //     style: function (feature) {
+    //       return {
+    //         color: '#FFFFFF',
+    //         weight: 1,
+    //         fillOpacity: 1,
+    //         fillColor: '#1f78b4'
+    //       };
+    //     }
+    //   }).addTo(map);
+
+    //   drawMap(testLayer);
+    // });
+
+
+
+    // function drawMap(testLayer) {
+
+    //   var breaks = getClassBreaks(testLayer);
+    //   testLayer.eachLayer(function (layer) {
+
+    //     var props = layer.feature.properties;
+
+    //     layer.setStyle({
+    //       fillColor: getColor(props[responserate_CRRINT], breaks)
+
+    //     });
+    //     layer.bindTooltip(
+    //       `<b>${layer.feature.properties.NAME}</b> <br> Internet Response Rate: ${layer.feature.properties.responserate_CRRINT}%`);
+
+
+    //   });
+
+    //   drawLegend(breaks);
+    //   console.log(breaks);
+
+    // }
+
+    // function getClassBreaks(testLayer) {
+      
+    //   var values = [];
+
+    //   testLayer.eachLayer(function (layer) {
+    //     if (layer.feature.properties.responserate_CRRINT != null) {
+    //     var props = layer.feature.properties;
+    //     var value = props[responserate_CRRINT];
+    //              values.push(value)
+    //     } 
+    // });
+
+    //   var clusters = ss.ckmeans(values, 5);
+
+    //   var breaks = clusters.map(function (cluster) {
+    //     return [cluster[0], cluster.pop()];
+    //   });
+    //   return breaks;
+    // };
+
+
+    
+    // function getColor(d, breaks) {
+    //   if (d <= breaks[0][1]) {
+    //     return '#f6bdc0';
+    //   } else if (d <= breaks[1][1]) {
+    //     return '#f1959b';
+    //   } else if (d <= breaks[2][1]) {
+    //     return '#f07470';
+    //   } else if (d <= breaks[3][1]) {
+    //     return '#ea4c46'
+    //   } else if (d <= breaks[4][1]) {
+    //     return '#dc1c13'
+     
+    //   }
+    // } ;
+
+    // function drawLegend(breaks) {
+
+    //   var legend = L.control({
+    //     position: 'topleft'
+    //   });
+
+    //   legend.onAdd = function () {
+
+    //     var div = L.DomUtil.create('div', 'legend');
+
+
+    //     div.innerHTML = `<h3><b>Overall Response Rate</b></h3>`;
+
+    //     for (var i = 0; i < breaks.length; i++) {
+    //       var color = getColor(breaks[i][0], breaks);
+    //       div.innerHTML +=
+    //         `<span style="background:${color}"></span>
+    //         <label>${(breaks[i][0]*1).toLocaleString()} &mdash;
+    //         ${(breaks[i][1]*1).toLocaleString()}%</label>`;
+    //     }
+    //     return div;
+    //   };
+    //   legend.addTo(map);
+    // }
+
+
+
+    // $.when(countyLayer).done(function () {
+    //   $.getJSON("data/us_states_20m.geojson", function (data) {
+
+    //     var stateLayer = L.geoJson(data, {
+    //       style: function (feature) {
+    //         return {
+
+    //           color: '#D3D3D3',
+    //           weight: 1.45,
+    //           fillOpacity: 0,
+    //           interactive: false
+    //         };
+    //       }
+    //     });
+    //     stateLayer.addTo(map)
+    //   });
+    // });
   </script>
 
 </body>
