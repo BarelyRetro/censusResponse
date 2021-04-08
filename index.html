@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset=utf-8 />
+  <title>2020 Census Response Rate</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin="" />
+  <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: whitesmoke;
+      font-family: Lato, sans-serif;
+      color: #0D0000;
+    }
+
+    header {
+      width: 80%;
+      margin: 10px auto 10px auto;
+    }
+
+    h1 {
+      display: inline-block;
+      margin-right: 20px;
+      color: #001323;
+    }
+
+    h2 {
+      display: inline-block;
+      color: #001323;
+    }
+
+    #map {
+      width: 80%;
+      height: 540px;
+      margin: 10px 10%;
+      background: rgb(243, 238, 238);
+      border: 2px solid #dddedf;
+    }
+
+    footer {
+      padding: 6px 10%;
+      width: 80%;
+    }
+
+    p {
+      font-size: 1em;
+      color: #001323;
+    }
+
+    .legend {
+      padding: 6px 8px;
+      font-size: 1em;
+      /* Use transparency to blend elements. */
+      border: 2px solid rgba(244, 244, 244, 0.2);
+      background: rgba(231, 226, 226, 0.712);
+      color: rgba(8, 8, 8, 0.8);
+      border-radius: 5px;
+    }
+
+    .legend h3 {
+      font-size: 1.1em;
+      font-weight: bolder;
+      color: #000000;
+      /* Light */
+      margin: 0 0 10px 0;
+    }
+
+    .legend span {
+      width: 20px;
+      height: 20px;
+      float: left;
+      margin: 0 10px 4px 0;
+    }
+
+    .legend label {
+      font-size: 1.1em;
+    }
+
+    .legend label:after {
+      content: '';
+      display: block;
+      clear: both;
+    }
+
+    .leaflet-bar a {
+      /* Override the default style for Leaflet's zoom  */
+      background: rgba(100, 100, 100, 0.9);
+      color: rgba(244, 244, 244, 0.8);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>2020 Census Response Rate</h1>
+    
+  </header>
+
+  <div id='map'></div>
+
+  <footer>
+    <p>Map authored by Robert Early</p>
+    <p>
+		The Decennial US Census is an important tool that affects representation in congress and allocation of federal funds.<br>
+		Use your cursor to hover over a location and see how response rates (percent of distributed census forms that were completed and returned) vary accross counties.  <br>
+		More research should be done before the 2030 Censsu to identify possible reasons for low response rates and develop plans to address them.
+	</p>
+	<p>  Data courtesy US Census Bureau</p>
+		
+    
+  </footer>
+
+  <!-- Load scripts using Subresource Integrity (SRI) is a security feature 
+      that enables browsers to verify that resources they fetch (from a CDN) 
+      are delivered without unexpected manipulation. -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+    crossorigin=""></script>
+  <script src='https://unpkg.com/simple-statistics@7.6.0/dist/simple-statistics.min.js'> </script>
+
+
+
+
+
+
+  <script>
+    // MAKE AN AWESOME WEB MAP!
+
+
+    var options = {
+      center: [39.828551863863396, -98.57946897380873],
+      zoom: 4.15,
+      zoomSnap: .1,
+      zoomControl: false
+    }
+    var map = L.map('map', options)
+    map.addControl(L.control.zoom({
+      position: 'topright'
+    }));;
+
+    var responserate_CRRALL = "responserate_CRRALL",
+      name = "NAME";
+
+
+
+    var countyLayer = $.getJSON("data/responsecounties.geojson", function (data) {
+
+      var dataLayer = L.geoJson(data, {
+        style: function (feature) {
+          return {
+            color: '#FFFFFF',
+            weight: 1,
+            fillOpacity: 1,
+            fillColor: '#1f78b4'
+          };
+        }
+      }).addTo(map);
+
+      drawMap(dataLayer);
+    });
+
+
+
+    function drawMap(dataLayer) {
+
+      var breaks = getClassBreaks(dataLayer);
+      dataLayer.eachLayer(function (layer) {
+
+        var props = layer.feature.properties;
+
+        layer.setStyle({
+          fillColor: getColor(props[responserate_CRRALL], breaks)
+
+        });
+        layer.bindTooltip(
+          `<b>${layer.feature.properties.NAME}</b> <br> Overall Response Rate: ${layer.feature.properties.responserate_CRRALL}%`);
+
+
+      });
+
+      drawLegend(breaks);
+      console.log(breaks);
+
+    }
+
+    function getClassBreaks(dataLayer) {
+      
+      var values = [];
+
+      dataLayer.eachLayer(function (layer) {
+        if (layer.feature.properties.responserate_CRRALL != null) {
+        var props = layer.feature.properties;
+        var value = props[responserate_CRRALL];
+                 values.push(value)
+        } 
+    });
+
+      var clusters = ss.ckmeans(values, 5);
+
+      var breaks = clusters.map(function (cluster) {
+        return [cluster[0], cluster.pop()];
+      });
+      return breaks;
+    };
+
+
+    
+    function getColor(d, breaks) {
+      if (d <= breaks[0][1]) {
+        return '#f1eef6';
+      } else if (d <= breaks[1][1]) {
+        return '#bdc9e1';
+      } else if (d <= breaks[2][1]) {
+        return '#74a9cf';
+      } else if (d <= breaks[3][1]) {
+        return '#2b8cbe'
+      } else if (d <= breaks[4][1]) {
+        return '#045a8d'
+     
+      }
+    } ;
+
+
+
+    function drawLegend(breaks) {
+
+      var legend = L.control({
+        position: 'topleft'
+      });
+
+      legend.onAdd = function () {
+
+        var div = L.DomUtil.create('div', 'legend');
+
+
+        div.innerHTML = `<h3><b>Overall Response Rate</b></h3>`;
+
+        for (var i = 0; i < breaks.length; i++) {
+          var color = getColor(breaks[i][0], breaks);
+          div.innerHTML +=
+            `<span style="background:${color}"></span>
+            <label>${(breaks[i][0]*1).toLocaleString()} &mdash;
+            ${(breaks[i][1]*1).toLocaleString()}%</label>`;
+        }
+        return div;
+      };
+      legend.addTo(map);
+    }
+
+
+
+    $.when(countyLayer).done(function () {
+      $.getJSON("data/us_states_20m.geojson", function (data) {
+
+        var stateLayer = L.geoJson(data, {
+          style: function (feature) {
+            return {
+
+              color: '#D3D3D3',
+              weight: 1.45,
+              fillOpacity: 0,
+              interactive: false
+            };
+          }
+        });
+        stateLayer.addTo(map)
+      });
+    });
+  </script>
+
+</body>
+
+</html>
+
+  
