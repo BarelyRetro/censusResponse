@@ -16,9 +16,9 @@
     body {
       margin: 0;
       padding: 0;
-      background: whitesmoke;
+      background: #222;
       font-family: Lato, sans-serif;
-      color: #0D0000;
+      color: #ddd;
     }
 
     header {
@@ -41,7 +41,7 @@
       width: 80%;
       height: 540px;
       margin: 10px 10%;
-      background: rgb(243, 238, 238);
+      background: rgba(63, 63, 63, 0.9); 
       border: 2px solid #dddedf;
     }
 
@@ -107,12 +107,15 @@
   <div id='map'></div>
 
   <footer>
-    <p>Map authored by Robert Early</p>
+  
     <p>
-		The Decennial US Census is an important tool that affects representation in congress and allocation of federal funds.<br>
-		Use your cursor to hover over a location and see how response rates (percent of distributed census forms that were completed and returned) vary accross counties.  <br>
+		The Decennial US Census is an important tool that affects representation in congress and allocation of federal funds.  2020 was the first year that households were able to respond to the census questionnaire online.<br>
+		Use your cursor to select a location and see how overall response rates (percent of distributed census forms that were completed and returned) and internet response rates (percent of census forms that were completed and returned digitally) vary across counties.  <br>
 		More research should be done before the 2030 Census to identify possible reasons for low response rates and develop plans to address them.
 	</p>
+
+  <p>Map authored by Robert Early</p>
+
 	<p>  Data courtesy US Census Bureau</p>
 		
     
@@ -129,17 +132,31 @@
   <script src='https://unpkg.com/simple-statistics@7.6.0/dist/simple-statistics.min.js'> </script>
 
 
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.2/proj4.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4leaflet/1.0.2/proj4leaflet.min.js"></script>
 
 
 
   <script>
     // MAKE AN AWESOME WEB MAP!
 
+    var naprj = {
+      epsg: 'EPSG:102008',
+      def: '+proj=aea +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs ',
+      resolutions: [8192, 4096, 2048, 1024, 512, 256, 128],
+      origin: [0, 0]
+    }
+
+    var crs = new L.Proj.CRS(naprj.epsg, naprj.def, {
+      resolutions: naprj.resolutions,
+      origin: naprj.origin
+    })
+
 
     var options = {
+      crs: crs,
       center: [39.828551863863396, -98.57946897380873],
-      zoom: 4.15,
+      zoom: 0.35,
       zoomSnap: .1,
       zoomControl: false
     }
@@ -158,10 +175,10 @@
       var dataLayer = L.geoJson(data, {
         style: function (feature) {
           return {
-            color: '#FFFFFF',
-            weight: 1,
+            color: '#ABABAB',
+            weight: .6,
             fillOpacity: 1,
-            fillColor: '#1f78b4'
+            fillColor: '#ABABAB'
           };
         }
       }).addTo(map);
@@ -182,8 +199,24 @@
           fillColor: getColor(props[responserate_CRRALL], breaks)
 
         });
-        layer.bindTooltip(
-          `<b>${layer.feature.properties.NAME}</b> <br> Overall Response Rate: ${layer.feature.properties.responserate_CRRALL}%`);
+        layer.bindPopup(
+
+          `<b>${layer.feature.properties.NAME}</b> <br> Overall Response Rate: ${layer.feature.properties.responserate_CRRALL}%    /
+          <br> Internet Response Rate: ${layer.feature.properties.responserate_INTALL}%                                                   `);
+          layer.on('mouseover', function() {
+            layer.bringToFront()
+            layer.setStyle({
+              color: 'orange',
+              weight: 4
+            })
+          })
+          layer.on('mouseout', function() {
+            layer.bringToBack()
+            layer.setStyle({
+              color: '#1F1F1F',
+              weight: .6
+            })
+          })
       });
 
       drawLegend(breaks);
@@ -199,7 +232,7 @@
         if (layer.feature.properties.responserate_CRRALL != null) {
         var props = layer.feature.properties;
         var value = props[responserate_CRRALL];
-                 values.push(value)
+                 values.push(Number(value))
         } 
     });
 
@@ -257,24 +290,28 @@
   
 
 
-    $.when(countyLayer).done(function () {
-      $.getJSON("data/us_states_20m.geojson", function (data) {
+$.when(countyLayer).done(function () {
 
-        var stateLayer = L.geoJson(data, {
-          style: function (feature) {
-            return {
+  $.getJSON("data/us_states_500k.json", function (data) {
 
-              color: '#D3D3D3',
-              weight: 1.45,
-              fillOpacity: 0,
-              interactive: false
-            };
-          }
-        });
-        stateLayer.addTo(map)
+      var stateLayer = L.geoJson(data, {
+        style: function (feature) {
+          return {
+           
+            color: '#808080', 
+            weight: 1.35,
+            fillOpacity: 0,
+            interactive: false
+          };
+        }
+
+        
       });
-    });
 
+      stateLayer.addTo(map)
+
+  });
+});
 
     // var responserate_CRRINT = "responserate_CRRINT",
     //   name = "NAME";
