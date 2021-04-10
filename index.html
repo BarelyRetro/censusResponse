@@ -16,7 +16,7 @@
     body {
       margin: 0;
       padding: 0;
-      background: #222;
+      background: whitesmoke;
       font-family: Lato, sans-serif;
       color: #ddd;
     }
@@ -43,6 +43,14 @@
       margin: 10px 10%;
       background: rgba(63, 63, 63, 0.9); 
       border: 2px solid #dddedf;
+    }
+    a {
+      color: #004A8B;
+    }
+
+    a:hover {
+      color: rgb(67, 69, 71);
+      text-decoration: none;
     }
 
     footer {
@@ -109,15 +117,16 @@
   <footer>
   
     <p>
-		The Decennial US Census is an important tool that affects representation in congress and allocation of federal funds.  2020 was the first year that households were able to respond to the census questionnaire online.<br>
-		Use your cursor to select a location and see how overall response rates (percent of distributed census forms that were completed and returned) and internet response rates (percent of census forms that were completed and returned digitally) vary across counties.  <br>
-		More research should be done before the 2030 Census to identify possible reasons for low response rates and develop plans to address them.
+		The decennial US Census is an important tool that affects representation in Congress and allocation of federal funds.  2020 was the first time that households were able to respond to the census questionnaire online.	</p>
+		<p>Use your cursor to select a location and see how overall response rates (percent of distributed census forms that were completed and returned) and internet response rates (percent of census forms that were completed and returned digitally) vary across counties.  <br>
+    </p>	<p>More research should be done prior to the 2030 Census to identify reasons for low response rates.  Several factors could be responsible for lower response areas so different approaches of engagement 
+      should be considered based on how the introduction of the online option affected overall response rate.
 	</p>
 
-  <p>Map authored by Robert Early</p>
+  <p>Map authored by Robert Early<br>
 
-	<p>  Data courtesy US Census Bureau</p>
-		
+ Data courtesy <a href = 'https://www.census.gov/data/developers/data-sets/decennial-response-rates.html'>US Census Bureau</a> </a></p>
+              
     
   </footer>
 
@@ -199,10 +208,12 @@
           fillColor: getColor(props[responserate_CRRALL], breaks)
 
         });
+        var ratio = (layer.feature.properties.responserate_CRRINT / layer.feature.properties.responserate_CRRALL).toFixed(2);
         layer.bindPopup(
 
-          `<b>${layer.feature.properties.NAME}</b> <br> Overall Response Rate: ${layer.feature.properties.responserate_CRRALL}%    /
-          <br> Internet Response Rate: ${layer.feature.properties.responserate_INTALL}%                                                   `);
+          `<b>${layer.feature.properties.NAME}</b> <br> Internet Response Rate: ${layer.feature.properties.responserate_CRRINT}%
+          <br> Overall Response Rate: ${layer.feature.properties.responserate_CRRALL}%
+          <br> Internet / Overall ratio: ${ratio}  `);
           layer.on('mouseover', function() {
             layer.bringToFront()
             layer.setStyle({
@@ -213,14 +224,14 @@
           layer.on('mouseout', function() {
             layer.bringToBack()
             layer.setStyle({
-              color: '#1F1F1F',
+              color: '#ABABAB',
               weight: .6
             })
           })
       });
 
       drawLegend(breaks);
-      console.log(breaks);
+      
 
     }
 
